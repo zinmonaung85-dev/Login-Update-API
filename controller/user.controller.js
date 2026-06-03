@@ -26,31 +26,31 @@ async function sendOtp(req, res) {
   }
 }
 
-async function verifyEmail(req,res){
+async function verifyEmail(req, res) {
 
-    try{
+  try {
 
-        const body = req.body;
+    const body = req.body;
 
-        const input = VerifyEmailDto.parse(body);
+    const input = VerifyEmailDto.parse(body);
 
-        const foundOtp = await userService.findOtp(
-                input.code
-            );
+    const foundOtp = await userService.findOtp(
+      input.code
+    );
 
-        await userService.activateUser(foundOtp.email);
+    await userService.activateUser(foundOtp.user_id);
 
-        await userService.deleteOtp(foundOtp.id);
+    await userService.deleteOtp(foundOtp.id);
 
-        return res.status(200).json({
-            data: {},
-            message:
-            "Email verified successfully!",
-        });
+    return res.status(200).json({
+      data: {},
+      message:
+        "Email verified successfully!",
+    });
 
-    }catch(err){
-        handleErrors(res,err);
-    }
+  } catch (err) {
+    handleErrors(res, err);
+  }
 }
 
 

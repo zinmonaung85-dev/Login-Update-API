@@ -20,7 +20,7 @@ async function createTodo(input) {
     [
       uuidv4(),
       input.title,
-      input.description || null,
+      input.description,
       new Date(),
       input.userId,
     ]
@@ -46,4 +46,50 @@ async function getTodo(userId) {
 }
 
 
-module.exports = { createTodo, getTodo };
+async function updateTodo(todoId, userId, input) {
+  const pool = db.pool();
+
+  console.log("todoId:", todoId);
+  console.log("userId:", userId);
+
+  const result = await pool.query(
+    `
+    UPDATE todos
+    SET title = $1, description = $2
+    WHERE id = $3 AND user_id = $4
+    RETURNING *
+    `,
+    [input.title, input.description, todoId, userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new ApiError("Todo not found", 404);
+  }
+
+  return result.rows[0];
+
+}
+
+
+async function deleteTodo(todoId, userId) {
+  const pool = db.pool();
+
+  const result = await pool.query(
+    `
+    DELETE FROM todos
+    WHERE id = $1
+      AND user_id = $2
+    RETURNING *
+    `,
+    [todoId, userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new ApiError("Todo not found", 404);
+  }
+
+  return result.rows[0];
+}
+
+
+module.exports = { createTodo, getTodo, updateTodo, deleteTodo };

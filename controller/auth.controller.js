@@ -15,12 +15,11 @@ async function register(req, res) {
 
     const createdUser = await authService.register(input);
 
-    const otp = await userService.createOtp(createdUser.email,createdUser.id);
+    const otp = await userService.createOtp(createdUser.email, createdUser.id);
 
-    await sendMail({ 
+    sendMail({
       email: createdUser.email,
       code: otp.code,
-
     });
 
     return res.status(201).json({

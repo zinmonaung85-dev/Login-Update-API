@@ -47,17 +47,17 @@ async function findOtp(code) {
   return otp;
 }
 
-async function activateUser(email) {
+async function activateUser(id) {
   const pool = db.pool();
 
   await pool.query({
     name: "activate-user",
-    text: "UPDATE users SET status = 'active' WHERE email = $1",
-    values: [email],
+    text: "UPDATE users SET status = 'active' WHERE id = $1 AND status = 'pending'",
+    values: [id],
   });
 
   return;
-  
+
 }
 
 
@@ -71,7 +71,7 @@ async function updateEmail(user_id, email) {
   });
 
   return;
-  
+
 }
 
 

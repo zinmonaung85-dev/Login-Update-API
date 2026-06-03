@@ -39,10 +39,12 @@ db.connect({
 app.use(express.json());
 
 
-app.post("/create-todo", authMiddleware,todoContoller.createTodo);
-app.get("/get-todo", authMiddleware,todoContoller.getTodo);
+app.post("/create-todo", authMiddleware, todoContoller.createTodo);
+app.get("/get-todo", authMiddleware, todoContoller.getTodo);
+app.put("/update-todo/:id", authMiddleware, todoContoller.updateTodo);
+app.delete("/delete-todo/:id", authMiddleware, todoContoller.deleteTodo);
 
-app.post("/send-otp", authMiddleware,userController.sendOtp);
+app.post("/send-otp", authMiddleware, userController.sendOtp);
 app.post("/verify-email", userController.verifyEmail);
 app.post("/change-email", authMiddleware, userController.updateEmail);
 app.use("/auth", authRoute);
