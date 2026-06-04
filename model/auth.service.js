@@ -48,7 +48,7 @@ async function register(input) {
   });
 
   return user;
-  
+
 }
 
 async function login(input) {
@@ -59,11 +59,14 @@ async function login(input) {
     text: "SELECT * FROM users WHERE email = $1",
     values: [input.email],
   });
+
   if (findByEmailResult.rows.length < 1) {
     throw new ApiError("User not found", 400);
   }
+
   const foundUser = findByEmailResult.rows[0];
-  if(foundUser.status !== "active"){
+
+  if (foundUser.status !== "active") {
     throw new ApiError("Please verify your email first!", 400);
   }
 
