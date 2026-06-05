@@ -1,15 +1,8 @@
 const express = require("express");
 const fs = require("fs");
-const userController = require("./controller/user.controller");
-const todoContoller = require("./controller/todo.controller");
-const adminController = require("./controller/admin.controller");
 const adminService = require("./model/admin.service");
-
 const { router: authRoute } = require("./controller/auth.route");
 const { DB } = require("./model/database");
-const { authMiddleware } = require("./middlewares/auth.middleware");
-const { adminMiddleware } = require("./middlewares/admin-jwt.middleware");
-const { permissionMiddleware } = require("./middlewares/permission.middleware");
 
 process.loadEnvFile("./.env");
 console.log("secret:", process.env.JWT_SECRET);
@@ -43,20 +36,10 @@ db.connect({
 // middleware
 app.use(express.json());
 
-app.post("/super-admin-login", adminController.superAdminLogin);
-app.post("/invite-admin", adminController.inviteAdmin);
-app.put("/change-password", adminController.changePassword);
-app.delete("/delete-user/:userId", permissionMiddleware, adminController.deleteUser);
 
-app.post("/create-todo", authMiddleware, todoContoller.createTodo);
-app.get("/get-todo", authMiddleware, todoContoller.getTodo);
-app.put("/update-todo/:id", authMiddleware, todoContoller.updateTodo);
-app.delete("/delete-todo/:id", authMiddleware, todoContoller.deleteTodo);
-
-app.post("/send-otp", authMiddleware, userController.sendOtp);
-app.post("/verify-email", userController.verifyEmail);
-app.post("/change-email", authMiddleware, userController.updateEmail);
 app.use("/auth", authRoute);
+app.use("/admin", authRoute);
+app.use("/users", authRoute);
 
 async function start() {
   await adminService.seedSuperAdmin();

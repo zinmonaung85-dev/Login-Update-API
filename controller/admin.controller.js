@@ -1,5 +1,5 @@
-const SuperAdminLoginDto = require("../dtos/super-admin-login.dto");
-const InviteAdminDto = require("../dtos/invite-admin.dto");
+const LoginDto = require("../dtos/login-api.dto");
+const InviteDto = require("../dtos/invite.dto");
 const ChangePasswordDto = require("../dtos/change-password.dto");
 const adminService = require("../model/admin.service");
 const authService = require("../model/auth.service");
@@ -9,13 +9,13 @@ const { sendMail } = require("../model/mail.service");
 
 
 
-async function superAdminLogin(req, res) {
+async function login(req, res) {
     try {
         const body = req.body;
 
-        const input = SuperAdminLoginDto.parse(body);
+        const input = LoginDto.parse(body);
 
-        const token = await adminService.superAdminLogin(input);
+        const token = await adminService.login(input);
 
         return res.json({ data: token, message: "You logged in successfully!" });
     } catch (err) {
@@ -24,13 +24,13 @@ async function superAdminLogin(req, res) {
 }
 
 
-async function inviteAdmin(req, res) {
+async function invite(req, res) {
     try {
         const body = req.body;
 
-        const input = InviteAdminDto.parse(body);
+        const input = InviteDto.parse(body);
 
-        const admin = await adminService.inviteAdmin(input);
+        const admin = await adminService.invite(input);
 
         return res.status(201).json({
             data: admin,
@@ -80,4 +80,4 @@ async function deleteUser(req, res) {
 }
 
 
-module.exports = { superAdminLogin, inviteAdmin, changePassword, deleteUser };
+module.exports = { login, invite, changePassword, deleteUser };

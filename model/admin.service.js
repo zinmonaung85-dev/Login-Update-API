@@ -50,7 +50,7 @@ async function seedSuperAdmin() {
 }
 
 
-async function superAdminLogin(input) {
+async function login(input) {
     const pool = db.pool();
 
     const findByEmailResult = await pool.query({
@@ -71,26 +71,11 @@ async function superAdminLogin(input) {
         throw new ApiError("Password not match", 400);
     }
 
+
     if (admin.role === "SUPER_ADMIN") {
         if (admin.status !== "ACTIVE") {
-            throw new ApiError("Super admin is not active", 400);
+            throw new ApiError("Super admin not found", 400);
         }
-
-        const token = signJWT({
-            id: admin.id,
-            role: admin.role,
-        });
-
-        return {
-            token,
-            admin: {
-                id: admin.id,
-                name: admin.name,
-                email: admin.email,
-                role: admin.role,
-                status: admin.status,
-            },
-        };
     }
 
     if (admin.status === "DELETED") {
@@ -131,7 +116,7 @@ async function superAdminLogin(input) {
 }
 
 
-async function inviteAdmin(input) {
+async function invite(input) {
     const pool = db.pool();
 
     const existingAdmin = await pool.query(
@@ -241,4 +226,4 @@ async function changePassword(input) {
 }
 
 
-module.exports = { seedSuperAdmin, superAdminLogin, inviteAdmin, changePassword };
+module.exports = { seedSuperAdmin, login, invite, changePassword };

@@ -1,9 +1,9 @@
 const z = require("zod");
 
-const InviteAdminDto = z.object({
+const InviteDto = z.object({
     name: z.string(),
     email: z.email(),
     role: z.enum(["ADMIN", "MANAGER"]),
 });
 
-module.exports = InviteAdminDto;
+module.exports = InviteDto;
