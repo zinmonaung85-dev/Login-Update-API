@@ -19,10 +19,7 @@ async function seedSuperAdmin() {
         return;
     }
 
-    const hashedPassword = await bcrypt.hash(
-        process.env.SUPER_ADMIN_PASSWORD,
-        10
-    );
+    const hashedPassword = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD, 10);
 
     await pool.query(
         `
@@ -61,21 +58,76 @@ async function superAdminLogin(input) {
         text: "SELECT * FROM admins WHERE email = $1",
         values: [input.email],
     });
+
     if (findByEmailResult.rows.length < 1) {
         throw new ApiError("Super admin not found", 400);
     }
-    const foundSuperAdmin = findByEmailResult.rows[0];
-    if (foundSuperAdmin.status !== "ACTIVE") {
-        throw new ApiError("You're not a super admin!", 400);
-    }
 
-    const isSame = await bcrypt.compare(input.password, foundSuperAdmin.password);
+    const admin = findByEmailResult.rows[0];
+
+    const isSame = await bcrypt.compare(input.password, admin.password);
+
     if (!isSame) {
         throw new ApiError("Password not match", 400);
     }
 
-    const token = signJWT({ id: foundSuperAdmin.id });
-    return token;
+    if (admin.role === "SUPER_ADMIN") {
+        if (admin.status !== "ACTIVE") {
+            throw new ApiError("Super admin is not active", 400);
+        }
+
+        const token = signJWT({
+            id: admin.id,
+            role: admin.role,
+        });
+
+        return {
+            token,
+            admin: {
+                id: admin.id,
+                name: admin.name,
+                email: admin.email,
+                role: admin.role,
+                status: admin.status,
+            },
+        };
+    }
+
+    if (admin.status === "DELETED") {
+        throw new ApiError("Account has been deleted", 400);
+    }
+
+
+    if (admin.status === "INVITED") {
+        await pool.query(
+            `
+            UPDATE admins
+            SET
+                status = 'ACTIVE',
+                updated_at = NOW()
+            WHERE id = $1
+            `,
+            [admin.id]
+        );
+
+        admin.status = "ACTIVE";
+    }
+
+    const token = signJWT({
+        id: admin.id,
+        role: admin.role,
+    });
+
+    return {
+        token,
+        admin: {
+            id: admin.id,
+            name: admin.name,
+            email: admin.email,
+            role: admin.role,
+            status: admin.status,
+        },
+    };
 }
 
 
@@ -95,8 +147,7 @@ async function inviteAdmin(input) {
         throw new ApiError("Email already exists", 400);
     }
 
-    // default password
-    const defaultPassword = "123456";
+    const defaultPassword = "123456";  // default password
 
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
@@ -137,67 +188,6 @@ async function inviteAdmin(input) {
     return result.rows[0];
 }
 
-
-async function adminLogin(input) {
-    const pool = db.pool();
-
-    const result = await pool.query(
-        `
-        SELECT *
-        FROM admins
-        WHERE email = $1
-        `,
-        [input.email]
-    );
-
-    if (result.rowCount === 0) {
-        throw new ApiError("Invalid email or password", 400);
-    }
-
-    const admin = result.rows[0];
-
-    const isMatch = await bcrypt.compare(input.password, admin.password);
-
-    if (!isMatch) {
-        throw new ApiError("Invalid email or password", 400);
-    }
-
-    if (admin.status === "DELETED") {
-        throw new ApiError("Account has been deleted", 400);
-    }
-
-
-    if (admin.status === "INVITED") {
-        await pool.query(
-            `
-            UPDATE admins
-            SET
-                status = 'ACTIVE',
-                updated_at = NOW()
-            WHERE id = $1
-            `,
-            [admin.id]
-        );
-
-        admin.status = "ACTIVE";
-    }
-
-    const token = signJWT({
-        id: admin.id,
-        role: admin.role,
-    });
-
-    return {
-        token,
-        admin: {
-            id: admin.id,
-            name: admin.name,
-            email: admin.email,
-            role: admin.role,
-            status: admin.status,
-        },
-    };
-}
 
 
 async function changePassword(input) {
@@ -251,4 +241,4 @@ async function changePassword(input) {
 }
 
 
-module.exports = { seedSuperAdmin, superAdminLogin, inviteAdmin, adminLogin, changePassword };
+module.exports = { seedSuperAdmin, superAdminLogin, inviteAdmin, changePassword };

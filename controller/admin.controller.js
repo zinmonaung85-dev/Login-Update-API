@@ -1,6 +1,5 @@
 const SuperAdminLoginDto = require("../dtos/super-admin-login.dto");
 const InviteAdminDto = require("../dtos/invite-admin.dto");
-const AdminLoginDto = require("../dtos/admin-login.dto");
 const ChangePasswordDto = require("../dtos/change-password.dto");
 const adminService = require("../model/admin.service");
 const authService = require("../model/auth.service");
@@ -18,7 +17,7 @@ async function superAdminLogin(req, res) {
 
         const token = await adminService.superAdminLogin(input);
 
-        return res.json({ data: token, message: "Super Admin logined successfully!" });
+        return res.json({ data: token, message: "You logged in successfully!" });
     } catch (err) {
         handleErrors(res, err);
     }
@@ -44,21 +43,6 @@ async function inviteAdmin(req, res) {
     }
 }
 
-async function adminLogin(req, res) {
-    try {
-        const input = AdminLoginDto.parse(req.body);
-
-        const admin = await adminService.adminLogin(input);
-
-        return res.status(200).json({
-            data: admin,
-            message: "You're successfully logged in!",
-        });
-    } catch (err) {
-        handleErrors(res, err);
-    }
-}
-
 
 async function changePassword(req, res) {
     try {
@@ -76,5 +60,24 @@ async function changePassword(req, res) {
     }
 }
 
+async function deleteUser(req, res) {
+    try {
+        const admin = req.admin;
 
-module.exports = { superAdminLogin, inviteAdmin, adminLogin, changePassword };
+        const userId = req.params.userId;
+
+        const deletedUser = await userService.deleteUser({ userId }, admin);
+
+        return res.status(200).json({
+            data: deletedUser,
+            message: "User deleted successfully!",
+        });
+
+    } catch (err) {
+        handleErrors(res, err);
+    }
+
+}
+
+
+module.exports = { superAdminLogin, inviteAdmin, changePassword, deleteUser };

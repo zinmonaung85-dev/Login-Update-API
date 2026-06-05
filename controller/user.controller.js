@@ -75,4 +75,5 @@ async function updateEmail(req, res) {
   }
 }
 
+
 module.exports = { sendOtp, verifyEmail, updateEmail };

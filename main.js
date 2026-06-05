@@ -44,8 +44,8 @@ app.use(express.json());
 
 app.post("/super-admin-login", adminController.superAdminLogin);
 app.post("/invite-admin", adminController.inviteAdmin);
-app.post("/admin-login", adminController.adminLogin);
 app.put("/change-password", adminController.changePassword);
+app.delete("/delete-user/:userId", adminMiddleware, adminController.deleteUser);
 
 app.post("/create-todo", authMiddleware, todoContoller.createTodo);
 app.get("/get-todo", authMiddleware, todoContoller.getTodo);

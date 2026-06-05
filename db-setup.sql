@@ -2,6 +2,31 @@ CREATE DATABASE IF NOT EXISTS todo_db;
 
 USE todo_db;
 
+CREATE TYPE admin_role AS ENUM(
+    'SUPER_ADMIN',
+    'ADMIN',
+    'MANAGER'
+);
+
+CREATE TYPE admin_status AS ENUM(
+    'INVITED',
+    'ACTIVE',
+    'DELETED'
+);
+
+CREATE TABLE admins(
+    id UUID PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    role admin_role NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    status admin_status NOT NULL DEFAULT 'INVITED',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
 CREATE TABLE todos (
     id VARCHAR(255) PRIMARY KEY,
     title VARCHAR(30) NOT NULL,

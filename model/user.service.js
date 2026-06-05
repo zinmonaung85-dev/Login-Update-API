@@ -30,6 +30,7 @@ async function findOtp(code) {
     text: "SELECT * FROM otps WHERE code = $1",
     values: [code],
   });
+
   if (!findOtpResult.rows.length) {
     throw new ApiError("Otp not found", 400);
   }
@@ -87,4 +88,43 @@ async function deleteOtp(id) {
   return;
 }
 
-module.exports = { createOtp, findOtp, activateUser, updateEmail, deleteOtp };
+async function deleteUser(input, currentAdmin) {
+
+  console.log(currentAdmin);
+  const pool = db.pool();
+
+  if (currentAdmin.role !== "SUPER_ADMIN" && currentAdmin.role !== "ADMIN") {
+    throw new ApiError("You do not have permission to delete users", 400);
+  }
+
+  const findUserResult = await pool.query({
+    name: "find-user",
+    text: "SELECT id, deleted FROM users WHERE id = $1",
+    values: [input.userId],
+  });
+
+  if (findUserResult.rows.length === 0) {
+    throw new ApiError("User not found!", 400);
+  }
+
+  const user = findUserResult.rows[0];
+
+  if (user.deleted === true) {
+    throw new ApiError("User is already deleted!");
+  }
+
+  const deletedUser = await pool.query({
+    name: "delete-user",
+    text: "UPDATE users SET deleted = true WHERE id = $1 RETURNING id, name, email, deleted, status",
+    values: [input.userId],
+  });
+
+  return deletedUser.rows[0];
+
+}
+
+
+
+
+
+module.exports = { createOtp, findOtp, activateUser, updateEmail, deleteOtp, deleteUser };
