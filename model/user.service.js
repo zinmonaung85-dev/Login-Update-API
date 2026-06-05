@@ -88,14 +88,9 @@ async function deleteOtp(id) {
   return;
 }
 
-async function deleteUser(input, currentAdmin) {
+async function deleteUser(input) {
 
-  console.log(currentAdmin);
   const pool = db.pool();
-
-  if (currentAdmin.role !== "SUPER_ADMIN" && currentAdmin.role !== "ADMIN") {
-    throw new ApiError("You do not have permission to delete users", 400);
-  }
 
   const findUserResult = await pool.query({
     name: "find-user",
@@ -104,13 +99,13 @@ async function deleteUser(input, currentAdmin) {
   });
 
   if (findUserResult.rows.length === 0) {
-    throw new ApiError("User not found!", 400);
+    throw new ApiError("User to delete not found!", 400);
   }
 
   const user = findUserResult.rows[0];
 
   if (user.deleted === true) {
-    throw new ApiError("User is already deleted!");
+    throw new ApiError("User is already deleted!", 400);
   }
 
   const deletedUser = await pool.query({

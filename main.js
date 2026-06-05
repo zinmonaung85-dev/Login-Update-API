@@ -9,6 +9,7 @@ const { router: authRoute } = require("./controller/auth.route");
 const { DB } = require("./model/database");
 const { authMiddleware } = require("./middlewares/auth.middleware");
 const { adminMiddleware } = require("./middlewares/admin-jwt.middleware");
+const { permissionMiddleware } = require("./middlewares/permission.middleware");
 
 process.loadEnvFile("./.env");
 console.log("secret:", process.env.JWT_SECRET);
@@ -45,7 +46,7 @@ app.use(express.json());
 app.post("/super-admin-login", adminController.superAdminLogin);
 app.post("/invite-admin", adminController.inviteAdmin);
 app.put("/change-password", adminController.changePassword);
-app.delete("/delete-user/:userId", adminMiddleware, adminController.deleteUser);
+app.delete("/delete-user/:userId", permissionMiddleware, adminController.deleteUser);
 
 app.post("/create-todo", authMiddleware, todoContoller.createTodo);
 app.get("/get-todo", authMiddleware, todoContoller.getTodo);
