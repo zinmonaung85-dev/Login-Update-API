@@ -72,16 +72,9 @@ async function login(input) {
     }
 
 
-    if (admin.role === "SUPER_ADMIN") {
-        if (admin.status !== "ACTIVE") {
-            throw new ApiError("Super admin not found", 400);
-        }
-    }
-
     if (admin.status === "DELETED") {
         throw new ApiError("Account has been deleted", 400);
     }
-
 
     if (admin.status === "INVITED") {
         await pool.query(
