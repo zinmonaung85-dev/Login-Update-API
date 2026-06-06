@@ -88,38 +88,5 @@ async function deleteOtp(id) {
   return;
 }
 
-async function deleteUser(input) {
 
-  const pool = db.pool();
-
-  const findUserResult = await pool.query({
-    name: "find-user",
-    text: "SELECT id, deleted FROM users WHERE id = $1",
-    values: [input.userId],
-  });
-
-  if (findUserResult.rows.length === 0) {
-    throw new ApiError("User to delete not found!", 400);
-  }
-
-  const user = findUserResult.rows[0];
-
-  if (user.deleted === true) {
-    throw new ApiError("User is already deleted!", 400);
-  }
-
-  const deletedUser = await pool.query({
-    name: "delete-user",
-    text: "UPDATE users SET deleted = true WHERE id = $1 RETURNING id, name, email, deleted, status",
-    values: [input.userId],
-  });
-
-  return deletedUser.rows[0];
-
-}
-
-
-
-
-
-module.exports = { createOtp, findOtp, activateUser, updateEmail, deleteOtp, deleteUser };
+module.exports = { createOtp, findOtp, activateUser, updateEmail, deleteOtp };

@@ -66,7 +66,7 @@ async function deleteUser(req, res) {
 
         const userId = req.params.userId;
 
-        const deletedUser = await userService.deleteUser({ userId }, admin);
+        const deletedUser = await adminService.deleteUser({ userId }, admin);
 
         return res.status(200).json({
             data: deletedUser,

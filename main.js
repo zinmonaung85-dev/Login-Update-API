@@ -2,6 +2,9 @@ const express = require("express");
 const fs = require("fs");
 const adminService = require("./model/admin.service");
 const { router: authRoute } = require("./controller/auth.route");
+const { router: todoRoute } = require("./controller/todo.route");
+const { router: adminRoute } = require("./controller/admin.route");
+
 const { DB } = require("./model/database");
 
 process.loadEnvFile("./.env");
@@ -38,8 +41,8 @@ app.use(express.json());
 
 
 app.use("/auth", authRoute);
-app.use("/admin", authRoute);
-app.use("/users", authRoute);
+app.use("/todos", todoRoute);
+app.use("/admins", adminRoute);
 
 async function start() {
   await adminService.seedSuperAdmin();
