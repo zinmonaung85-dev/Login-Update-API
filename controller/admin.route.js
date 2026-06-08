@@ -10,6 +10,7 @@ const { permissionMiddleware, } = require("../middlewares/permission.middleware"
 router.post("/system-login", adminController.login);
 router.post("/invite", adminController.invite);
 router.put("/change-password", adminController.changePassword);
+router.get("/view-user", adminMiddleware, adminController.viewUserList);
 router.delete("/delete-user/:userId", adminMiddleware, permissionMiddleware, adminController.deleteUser);
 
 module.exports = { router };

@@ -218,6 +218,27 @@ async function changePassword(input) {
     return updatedPassword.rows[0];
 }
 
+
+async function viewUserList(currentAdmin) {
+
+    console.log(currentAdmin);
+
+    const pool = db.pool();
+
+    if (!currentAdmin) {
+        throw new ApiError("Unauthorized to view users", 401);
+    }
+
+    const viewUserResult = await pool.query({
+        name: "view-user",
+        text: "SELECT id, name, email, status, created_at FROM users WHERE status = $1 AND deleted = $2 ORDER BY created_at DESC",
+        values: ['active', false],
+    });
+
+    return viewUserResult.rows;
+}
+
+
 async function deleteUser(input) {
 
     const pool = db.pool();
@@ -249,4 +270,4 @@ async function deleteUser(input) {
 }
 
 
-module.exports = { seedSuperAdmin, login, invite, changePassword, deleteUser };
+module.exports = { seedSuperAdmin, login, invite, changePassword, viewUserList, deleteUser };

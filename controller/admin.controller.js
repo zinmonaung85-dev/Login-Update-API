@@ -60,6 +60,22 @@ async function changePassword(req, res) {
     }
 }
 
+
+async function viewUserList(req, res) {
+    try {
+        const admin = req.admin;
+
+        const users = await adminService.viewUserList(admin);
+
+        return res.status(200).json({
+            data: users,
+            message: "User fetched successfully!",
+        });
+    } catch (err) {
+        handleErrors(res, err);
+    }
+}
+
 async function deleteUser(req, res) {
     try {
         const admin = req.admin;
@@ -80,4 +96,4 @@ async function deleteUser(req, res) {
 }
 
 
-module.exports = { login, invite, changePassword, deleteUser };
+module.exports = { login, invite, changePassword, viewUserList, deleteUser };
