@@ -1,6 +1,7 @@
 const LoginDto = require("../dtos/login-api.dto");
 const InviteDto = require("../dtos/invite.dto");
 const ChangePasswordDto = require("../dtos/change-password.dto");
+const GetUserDto = require("../dtos/get-users.dto");
 const adminService = require("../model/admin.service");
 const authService = require("../model/auth.service");
 const userService = require("../model/user.service");
@@ -61,20 +62,29 @@ async function changePassword(req, res) {
 }
 
 
-async function viewUserList(req, res) {
+async function getUserList(req, res) {
     try {
+
         const admin = req.admin;
 
-        const users = await adminService.viewUserList(admin);
+        const query = GetUserDto.parse(req.query);
+
+        const users = await adminService.getUserList(
+            admin,
+            query.page,
+            query.size
+        );
 
         return res.status(200).json({
             data: users,
             message: "User fetched successfully!",
         });
+
     } catch (err) {
         handleErrors(res, err);
     }
 }
+
 
 async function deleteUser(req, res) {
     try {
@@ -96,4 +106,4 @@ async function deleteUser(req, res) {
 }
 
 
-module.exports = { login, invite, changePassword, viewUserList, deleteUser };
+module.exports = { login, invite, changePassword, getUserList, deleteUser };

@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const { DB } = require("./database");
+const role = require("./user.model");
 const ApiError = require("../controller/api-error");
 const { signJWT } = require("./jwt");
 
@@ -219,7 +220,7 @@ async function changePassword(input) {
 }
 
 
-async function viewUserList(currentAdmin) {
+async function getUserList(currentAdmin, page, size) {
 
     console.log(currentAdmin);
 
@@ -229,10 +230,12 @@ async function viewUserList(currentAdmin) {
         throw new ApiError("Unauthorized to view users", 401);
     }
 
+    //const offset = (page - 1) * size;
+
     const viewUserResult = await pool.query({
         name: "view-user",
-        text: "SELECT id, name, email, status, created_at FROM users WHERE status = $1 AND deleted = $2 ORDER BY created_at DESC",
-        values: ['active', false],
+        text: "SELECT id, name, email, status, created_at FROM users WHERE status = $1 AND deleted = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4",
+        values: ['active', false, size, (page - 1) * size],
     });
 
     return viewUserResult.rows;
@@ -270,4 +273,4 @@ async function deleteUser(input) {
 }
 
 
-module.exports = { seedSuperAdmin, login, invite, changePassword, viewUserList, deleteUser };
+module.exports = { seedSuperAdmin, login, invite, changePassword, getUserList, deleteUser };
