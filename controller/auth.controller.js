@@ -1,9 +1,11 @@
 const RegisterDto = require("../dtos/register-api.dto");
 const LoginDto = require("../dtos/login-api.dto");
+const RefreshTokenDto = require("../dtos/refresh-token.dto");
 const authService = require("../model/auth.service");
 const userService = require("../model/user.service");
 const { handleErrors } = require("./handle-errors");
 const { sendMail } = require("../model/mail.service");
+
 
 async function register(req, res) {
   try {
@@ -31,6 +33,7 @@ async function register(req, res) {
   }
 }
 
+
 async function login(req, res) {
   try {
     const body = req.body;
@@ -45,4 +48,22 @@ async function login(req, res) {
   }
 }
 
-module.exports = { register, login };
+
+async function getRefreshToken(req, res) {
+  try {
+    const { refreshToken } = req.body;
+
+    const data = await authService.getRefreshToken(refreshToken);
+
+    return res.status(200).json({
+      data,
+      message: "Access token generated successfully",
+    });
+
+  } catch (err) {
+    handleErrors(res, err);
+  }
+}
+
+
+module.exports = { register, login, getRefreshToken };

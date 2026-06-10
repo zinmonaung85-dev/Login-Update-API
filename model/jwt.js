@@ -1,19 +1,35 @@
 const jwt = require("jsonwebtoken");
 
-function getJWTSecret() {
-  const secret = process.env.JWT_SECRET;
+function getAccessSecret() {
+  const secret = process.env.JWT_ACCESS_SECRET;
+
   if (!secret) {
-    throw new Error("JWT secret is not provided");
+    throw new Error("JWT_ACCESS_SECRET is not provided");
   }
+
   return secret;
 }
 
-function signJWT(payload) {
-  return jwt.sign(payload, getJWTSecret());
+function getRefreshSecret() {
+  const secret = process.env.JWT_REFRESH_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_REFRESH_SECRET is not provided");
+  }
+
+  return secret;
 }
 
-function verifyJWT(token) {
-  return jwt.verify(token, getJWTSecret());
+function signAccessToken(payload, expiresIn) {
+  return jwt.sign(payload, getAccessSecret(), { expiresIn, });
 }
 
-module.exports = { signJWT, verifyJWT };
+function signRefreshToken(payload, expiresIn) {
+  return jwt.sign(payload, getRefreshSecret(), { expiresIn, });
+}
+
+function verifyRefreshToken(token) {
+  return jwt.verify(token, getRefreshSecret());
+}
+
+module.exports = { signAccessToken, signRefreshToken, verifyRefreshToken, };
