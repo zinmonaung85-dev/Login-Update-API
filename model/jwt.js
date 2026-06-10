@@ -28,8 +28,12 @@ function signRefreshToken(payload, expiresIn) {
   return jwt.sign(payload, getRefreshSecret(), { expiresIn, });
 }
 
+function verifyAccessToken(token) {
+  return jwt.verify(token, getAccessSecret());
+}
+
 function verifyRefreshToken(token) {
   return jwt.verify(token, getRefreshSecret());
 }
 
-module.exports = { signAccessToken, signRefreshToken, verifyRefreshToken, };
+module.exports = { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken, };

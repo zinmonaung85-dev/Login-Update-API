@@ -7,6 +7,7 @@ const { handleErrors } = require("./handle-errors");
 const { sendMail } = require("../model/mail.service");
 
 
+
 async function register(req, res) {
   try {
     const body = req.body;
@@ -49,11 +50,11 @@ async function login(req, res) {
 }
 
 
-async function getRefreshToken(req, res) {
+async function refreshAccessToken(req, res) {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.body;  //const refreshToken =RefreshTokenDto.parse(body);
 
-    const data = await authService.getRefreshToken(refreshToken);
+    const data = await authService.refreshAccessToken(refreshToken);
 
     return res.status(200).json({
       data,
@@ -66,4 +67,24 @@ async function getRefreshToken(req, res) {
 }
 
 
-module.exports = { register, login, getRefreshToken };
+async function getMe(req, res) {
+  try {
+    const userId = req.user.id;
+    console.log("Retrieved userId from middleware:", userId);
+
+    const user = await authService.getMe(userId);
+
+    return res.status(200).json({
+      userInformation: {
+        id: user.id,
+        name: user.name,
+        createdAt: user.created_at,
+      },
+      message: "Retrieved User Information successfully!",
+    });
+  } catch (err) {
+    handleErrors(res, err);
+  }
+}
+
+module.exports = { register, login, refreshAccessToken, getMe };

@@ -1,5 +1,5 @@
 const { DB } = require("../model/database");
-const { verifyJWT } = require("../model/jwt");
+const { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken, } = require("../model/jwt");
 const ApiError = require("../controller/api-error");
 
 const db = DB.create();
@@ -11,7 +11,7 @@ async function authMiddleware(req, res, next) {
     const authorizationHeader = req.headers?.authorization;
     if (!authorizationHeader) {
       throw new ApiError("Authorization header must be provided", 401);
-      
+
     }
     const splittedAuthHeader = authorizationHeader.split(" ");
     if (splittedAuthHeader.length !== 2) {
@@ -22,7 +22,7 @@ async function authMiddleware(req, res, next) {
     }
     const jwtToken = splittedAuthHeader[1];
 
-    const payload = verifyJWT(jwtToken);
+    const payload = verifyAccessToken(jwtToken);
     if (!("id" in payload) || payload.id === "") {
       throw new ApiError("Invalid jwt token", 401);
     }

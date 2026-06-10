@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const ApiError = require("../controller/api-error");
 //const { signJWT } = require("./jwt");
-const { signAccessToken, signRefreshToken, verifyRefreshToken, } = require("./jwt");
+const { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken, } = require("./jwt");
 
 const db = DB.create();
 
@@ -100,7 +100,7 @@ async function login(input) {
 }
 
 
-async function getRefreshToken(refreshToken) {
+async function refreshAccessToken(refreshToken) {
 
   if (!refreshToken) {
     throw new ApiError("Refresh token is required", 400);
@@ -124,4 +124,25 @@ async function getRefreshToken(refreshToken) {
 }
 
 
-module.exports = { register, login, getRefreshToken };
+async function getMe(userId) {
+
+  console.log(userId);
+  const pool = db.pool();
+
+  const findUserByIdResult = await pool.query({
+    name: "find-user-by-id-v4",
+    text: "SELECT id, name, created_at FROM users WHERE id = $1",
+    values: [userId],
+  });
+
+  if (findUserByIdResult.rows.length === 0) {
+    throw new ApiError("User not found", 400);
+  }
+
+  const foundUser = findUserByIdResult.rows[0];
+
+  return foundUser;
+}
+
+
+module.exports = { register, login, refreshAccessToken, getMe };
